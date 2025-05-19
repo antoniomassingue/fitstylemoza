@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pagamento e Envio</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>FitStyle Moza</h1>
+    <nav>
+      <ul>
+        <li><a href="index.html">Início</a></li>
+        <li><a href="carrinho.html">Ver Carrinho</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <form id="form-envio">
+  <label for="nome">Nome Completo</label>
+  <input type="text" id="nome" required />
+
+  <label for="endereco">Endereço de Entrega</label>
+  <input type="text" id="endereco" required />
+
+  <label for="cidade">Cidade</label>
+  <input type="text" id="cidade" required />
+
+  <label for="pagamento">Forma de Pagamento</label>
+  <select id="pagamento" required>
+    <option value="">Selecione...</option>
+    <option value="PayPal">PayPal</option>
+    <option value="Cartão de Crédito">Cartão de Crédito</option>
+  </select>
+
+  <button type="submit" class="btn btn-comprar">Finalizar Compra</button>
+</form>
+
+
+  <footer>
+    <p>&copy; 2025 FitStyle Moza. Todos os direitos reservados.</p>
+  </footer>
+
+  <script>
+    const dados = JSON.parse(localStorage.getItem('compra_finalizada'));
+    const detalhes = document.getElementById('detalhes-produto');
+
+    if (dados) {
+      detalhes.innerHTML = `
+        <p><strong>Produto:</strong> ${dados.nome}</p>
+        <p><strong>Preço:</strong> ${dados.preco} MZN</p>
+        <img src="${dados.imagem}" alt="${dados.nome}" style="max-width:200px; margin:10px 0;">
+      `;
+    }
+
+    const form = document.getElementById('form-envio');
+    form.addEventListener('submit', function (e) {
+  e.preventDefault();
+
+  const nome = document.getElementById('nome').value;
+  const endereco = document.getElementById('endereco').value;
+  const cidade = document.getElementById('cidade').value.trim().toLowerCase();
+  const pagamento = document.getElementById('pagamento').value;
+
+  if (!pagamento) {
+    alert("Por favor, selecione uma forma de pagamento.");
+    return;
+  }
+
+  let frete = cidade === 'maputo' ? 0 : 300;
+
+  dados.frete = frete;
+  dados.total = dados.preco + frete;
+  dados.nomeCliente = nome;
+  dados.endereco = endereco;
+  dados.cidade = cidade;
+  dados.pagamento = pagamento;
+
+  localStorage.setItem('compra_finalizada', JSON.stringify(dados));
+  window.location.href = 'compra-confirmada.html';
+});
+
+  </script>
+</body>
+</html>

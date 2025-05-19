@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Compra Confirmada</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>FitStyle Moza</h1>
+    <nav>
+      <ul>
+        <li><a href="index.html">Início</a></li>
+        <li><a href="carrinho.html">Ver Carrinho</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <section class="confirmacao">
+    <h2>✅ Compra Confirmada!</h2>
+    <div id="resumo-compra"></div>
+  </section>
+
+  <footer>
+    <p>&copy; 2025 FitStyle Moza. Todos os direitos reservados.</p>
+  </footer>
+
+  <script>
+    const dados = JSON.parse(localStorage.getItem('compra_finalizada'));
+    const resumo = document.getElementById('resumo-compra');
+
+    if (dados) {
+      resumo.innerHTML = `
+        <p><strong>Produto:</strong> ${dados.nome}</p>
+        <img src="${dados.imagem}" alt="${dados.nome}" style="max-width:200px; margin:10px 0;">
+        <p><strong>Preço do Produto:</strong> ${dados.preco} MZN</p>
+        <p><em>Obrigado por comprar conosco!</em></p>
+      `;
+      // Limpa o carrinho após compra
+      localStorage.removeItem('carrinho');
+      localStorage.removeItem('compra_finalizada');
+    } else {
+      resumo.innerHTML = `<p>Nenhuma compra foi encontrada.</p>`;
+    }
+  </script>
+</body>
+</html>

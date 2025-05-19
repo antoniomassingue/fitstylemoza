@@ -1,0 +1,213 @@
+<!DOCTYPE html> 
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Carrinho de Compras</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      padding: 20px;
+    }
+
+    h1, h2 {
+      color: #333;
+    }
+
+    .carrinho-container {
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.1);
+      max-width: 600px;
+      margin: 0 auto 40px;
+    }
+
+    .produto {
+      border-bottom: 1px solid #ccc;
+      padding: 10px 0;
+    }
+
+    .produto:last-child {
+      border-bottom: none;
+    }
+
+    .resumo {
+      margin-top: 20px;
+      background: #f9f9f9;
+      padding: 15px;
+      border-radius: 8px;
+    }
+
+    .pagamento-form {
+      margin-top: 20px;
+    }
+
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
+    select, input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    .btn-pagar {
+      margin-top: 15px;
+      background-color: #28a745;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background 0.3s;
+    }
+
+    .btn-pagar:hover {
+      background-color: #218838;
+    }
+
+    .ultima-compra {
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.1);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>🛒 Carrinho de Compras</h1>
+
+  <div class="carrinho-container" id="lista-carrinho">
+    <h2>Produtos no Carrinho</h2>
+    <!-- Lista de produtos será exibida aqui -->
+  </div>
+
+  <div class="ultima-compra">
+    <h2>Última Compra Finalizada</h2>
+    <div id="ultima-compra"></div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const lista = document.getElementById('lista-carrinho');
+      const carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
+
+      if (carrinho.length === 0) {
+        lista.innerHTML += '<p>Seu carrinho está vazio.</p>';
+      } else {
+        carrinho.forEach((item, i) => {
+          const div = document.createElement('div');
+          div.className = 'produto';
+          div.innerHTML = `
+            <p><strong>${i + 1}. ${item.nome}</strong></p>
+            <p>Preço: ${item.preco} MZN</p>
+          `;
+          lista.appendChild(div);
+        });
+
+        // Formulário de pagamento simulado
+        const pagamentoDiv = document.createElement('div');
+        pagamentoDiv.className = 'pagamento-form';
+        pagamentoDiv.innerHTML = `
+          <h3>🔐 Forma de Pagamento</h3>
+          <label for="forma-pagamento">Selecione</label>
+          <select id="forma-pagamento">
+            <option value="">-- Escolha --</option>
+            <option value="PayPal">PayPal</option>
+            <option value="Cartão de Crédito">Cartão de Crédito</option>
+          </select>
+
+          <div id="cartao-detalhes" style="display:none;">
+            <label for="numero-cartao">Número do Cartão</label>
+            <input type="text" id="numero-cartao" placeholder="0000 0000 0000 0000" />
+          </div>
+
+          <button class="btn-pagar" id="btn-pagar">Pagar Agora</button>
+        `;
+        lista.appendChild(pagamentoDiv);
+
+        const selectPagamento = document.getElementById('forma-pagamento');
+        const cartaoDetalhes = document.getElementById('cartao-detalhes');
+
+        selectPagamento.addEventListener('change', () => {
+          cartaoDetalhes.style.display = selectPagamento.value === 'Cartão de Crédito' ? 'block' : 'none';
+        });
+
+        document.getElementById('btn-pagar').addEventListener('click', () => {
+          const metodo = selectPagamento.value;
+          if (!metodo) {
+            alert('Por favor, selecione uma forma de pagamento.');
+            return;
+          }
+
+          if (metodo === 'Cartão de Crédito') {
+            const numero = document.getElementById('numero-cartao').value.trim();
+            if (numero.length < 14) {
+              alert('Número de cartão inválido.');
+              return;
+            }
+          }
+
+          const frete = 50;
+          const totalProdutos = carrinho.reduce((acc, item) => acc + parseFloat(item.preco), 0);
+          const total = totalProdutos + frete;
+
+          // Simula dados do cliente
+          const nomeCliente = "Cliente Exemplo";
+          const endereco = "Rua Fictícia, 123";
+          const cidade = "Maputo";
+
+          const compraFinalizada = {
+            produtos: carrinho,
+            pagamento: metodo,
+            frete: frete,
+            total: total,
+            nomeCliente: nomeCliente,
+            endereco: endereco,
+            cidade: cidade
+          };
+
+          localStorage.setItem('compra_finalizada', JSON.stringify(compraFinalizada));
+          localStorage.removeItem('carrinho');
+
+          alert(`Pagamento via ${metodo} processado com sucesso!`);
+          location.reload();
+        });
+      }
+
+      // Exibir dados da última compra finalizada
+      const ultima = JSON.parse(localStorage.getItem('compra_finalizada'));
+      const container = document.getElementById('ultima-compra');
+      if (ultima) {
+        let listaProdutos = '';
+        ultima.produtos.forEach((prod, i) => {
+          listaProdutos += `<p>${i + 1}. <strong>${prod.nome}</strong> - ${prod.preco} MZN</p>`;
+        });
+
+        container.innerHTML = `
+          <p><strong>Produtos:</strong></p>
+          ${listaProdutos}
+          <p><strong>Frete:</strong> ${ultima.frete} MZN</p>
+          <p><strong>Total:</strong> ${ultima.total} MZN</p>
+          <p><strong>Pagamento:</strong> ${ultima.pagamento}</p>
+          <p><strong>Cliente:</strong> ${ultima.nomeCliente}</p>
+          <p><strong>Endereço:</strong> ${ultima.endereco}</p>
+          <p><strong>Cidade:</strong> ${ultima.cidade}</p>
+        `;
+      } else {
+        container.innerHTML = '<p>Nenhuma compra finalizada encontrada.</p>';
+      }
+    });
+  </script>
+</body>
+</html>
